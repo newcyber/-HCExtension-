@@ -1,0 +1,75 @@
+--[[ <HCExtension>
+@name		youtube con limiter
+@author		noscar
+@version	1
+@rule		videoplayback
+@event          RequestHeaderReceived/cek
+@event          AnswerHeaderReceived/wawaw
+@event          Init/init
+</HCExtension> ]]
+
+function init()
+hc.put_msg(30, 'YOUTUBE LIMIT')
+local path = hc.cache_path ..'temp\\limit\\'
+hc.delete_file(path)
+end 
+
+function cek_file(s)
+   local f=io.open(s,"r")
+   if f~=nil then io.close(f) return true
+   else return false
+   end
+end
+
+
+
+function cek ()
+local ip = hc.user_ip 
+local path = hc.cache_path ..'temp\\limit\\'..ip
+local id = re.find(hc.url, [[&id=.*?&]])
+local id = re.replace(id, [[(&id=)(.*?)(&)]], [[\2]])
+	if hc.method == 'GET' and hc.cache_file_name == '' then
+		if cek_file(path) == false  then  
+			hc.prepare_path(path) 
+			local clr = io.open(path, "w")
+			clr:write(id)
+			clr:close()
+			hc.monitor_string = 'LIMIT'	
+			else
+			local idv = io.open(path, "r") 
+			local idv2 = idv:read('*a')
+
+			if id ~= idv2 then 
+                              -- hc.client_disconnect()
+                        local newurl = "http://www48.indowebster.com/cba0d1c40c249db6075a28eab19aebbb.mp4"
+                        hc.request_header = re.replace(hc.request_header, [[\AGET \K[^\r\n]+(?= HTTP/)]], newurl)
+
+			end
+			idv:close()			
+		end
+	
+	end
+end
+
+function wawaw()
+if hc.cache_file_name == '' then 
+   hc.call_me_for('BeforeAnswerBodySend', 'ceki')
+end 
+end 
+
+function ceki ()
+local ip = hc.user_ip 
+local path = hc.cache_path ..'temp\\limit\\'..ip
+local id = re.find(hc.url, [[&id=.*?&]])
+local id = re.replace(id, [[(&id=)(.*?)(&)]], [[\2]])
+
+		if hc.client_connected == false or hc.last_part then 
+			local iv = io.open(path, "r") 
+			local iv2 = iv:read('*a')
+			if id == iv2 then 
+				iv:close()
+				--hc.put_msg(30, 'dooooooong')
+				hc.delete_file(path)
+			end 
+		end 		
+end
